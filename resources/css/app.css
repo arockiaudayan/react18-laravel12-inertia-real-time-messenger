@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+#app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    height: 100vh;
+}
+
+.conversation-item .avatar.avatar-online:before,
+.conversation-item .avatar.avatar-offline:before{
+    width: 8px !important;
+    height: 8px !important;
+    top: 1% !important;
+    right: 1% !important;
+}

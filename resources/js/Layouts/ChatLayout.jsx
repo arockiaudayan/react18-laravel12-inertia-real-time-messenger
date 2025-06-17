@@ -18,9 +18,9 @@ const ChatLayout = ({ children }) => {
     return onlineUsers[userId] !== undefined;
   }
 
-  console.log('conversation', conversation);
-  console.log('selectedConversation', selectedConversation);
-  console.log('sortedConversations', sortedConversations);
+  // console.log('conversation', conversation);
+  // console.log('selectedConversation', selectedConversation);
+  // console.log('sortedConversations', sortedConversations);
 
   const onSearch = (e) => {
     const searchTerm = e.target.value.toLowerCase();

@@ -26,7 +26,7 @@ class MessageController extends Controller
 
         return inertia('Home', [
             'selectedConversation' => $user->toConversationArray(),
-            'message'              => MessageResource::collection($message),
+            'messages'              => MessageResource::collection($message),
         ]);
     }
 
@@ -39,7 +39,7 @@ class MessageController extends Controller
 
         return inertia('Home', [
             'selectedConversation' => $group->toConversationArray(),
-            'message'              => MessageResource::collection($message),
+            'messages'              => MessageResource::collection($message),
         ]);
     }
 
@@ -69,7 +69,7 @@ class MessageController extends Controller
     public function store(StoreMessageRequest $request)
     {
         $data              = $request->validated();
-        $data['sender_id'] = auth()->id;
+        $data['sender_id'] = Auth::user()->id;
         $receiverId        = $data['receiver_id'] ?? null;
         $groupId           = $data['group_id'] ?? null;
 
@@ -97,7 +97,7 @@ class MessageController extends Controller
         }
 
         if($receiverId) {
-            Conversation::updateConversationWithMessage($receiverId, auth()->id, $message);
+            Conversation::updateConversationWithMessage($receiverId, Auth::user()->id, $message);
         }
         if($groupId) {
             Group::updateGroupWithMessage($groupId, $message);
@@ -110,7 +110,7 @@ class MessageController extends Controller
 
     public function destroy(Message $message)
     {
-        if($message->sender_id !== auth()->id) {
+        if($message->sender_id !== Auth::user()->id) {
             return response()->json(['message' => 'Forbidden'], 403);
         }
         $message->delete();

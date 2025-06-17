@@ -5,6 +5,7 @@ import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 
 const ConversationHeader = ({ selectedConversation }) => {
 
+    
     return (
         <>
         {
@@ -13,7 +14,7 @@ const ConversationHeader = ({ selectedConversation }) => {
                     <div className="flex items-center gap-3">
                         <Link
                             href={route('dashboard')}
-                            className="inline-block Sm:hidden"
+                            className="inline-block sm:hidden dark:text-gray-200 hover:text-gray-300 transition-all"
                         >
                             <ArrowLeftIcon className="w-6" />
                         </Link>
@@ -22,15 +23,15 @@ const ConversationHeader = ({ selectedConversation }) => {
                         )}
                         {selectedConversation.is_user && (
                             <UserAvatar
-                                user={selectedConversation.user}
+                                user={selectedConversation}
                                 className="w-10 h-10"
                             />
                         )}
                         <div>
-                            <h3>{selectedConversation.name}</h3>
+                            <h3 className="text-lg font-semibold dark:text-gray-200">{selectedConversation.name}</h3>
                             {
                                 selectedConversation.is_group && (
-                                    <p className="text-sm text-slate-400">
+                                    <p className="text-sm text-slate-400 dark:text-gray-500">
                                         {selectedConversation.users.length} members
                                     </p>
                                 )

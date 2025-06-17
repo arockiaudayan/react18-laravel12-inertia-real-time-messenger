@@ -17,33 +17,28 @@ export default {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
         },
+        screens: {
+            xs: '420px',
+            sm: '680px',
+            md: '768px',
+            lg: '1024px',
+            xl: '1280px',
+            '2xl': '1536px',
+            ...defaultTheme.screens,
+        },
     },
 
     plugins: [forms,require("daisyui")],
     daisyui: {
-        themes: [
-            {
-                mytheme: {
-                    primary: '#4f46e5',
-                    secondary: '#f43f5e',
-                    accent: '#a855f7',
-                    neutral: '#1c1917',
-                    'base-100': '#ffffff',
-                    info: '#3b82f6',
-                    success: '#16a34a',
-                    warning: '#f59e0b',
-                    error: '#dc2626',
-                },
-            },
-        ],
-        darkTheme: 'mytheme',
+
+        darkTheme: 'dark',
         base: true,
         styled: true,
         utils: true,
         logs: true,
         rtl: false,
         prefix: '',
-        themes: true,
+        themes: ['dark'],
         // Disable the default themes to avoid conflicts
         // defaultTheme: false,
         // Disable the dark theme to avoid conflicts

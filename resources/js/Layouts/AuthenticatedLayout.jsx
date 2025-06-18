@@ -14,7 +14,7 @@ export default function AuthenticatedLayout({ header, children }) {
     const [showingNavigationDropdown, setShowingNavigationDropdown] =
         useState(false);
 
-        const { emit} = useEventBus();
+    const { emit } = useEventBus();
 
     useEffect(() => {
         conversations.forEach(conversation => {
@@ -37,20 +37,19 @@ export default function AuthenticatedLayout({ header, children }) {
                     emit('message.created', message);
 
                     if (message.sender_id !== user.id) {
-                        return ;
-                    }           
+                        return;
+                    }
 
                     emit('newMessageNotification', {
-                        user:message.sender,
+                        user: message.sender,
                         group_id: message.group_id,
                         message:
                             message.message ||
-                            `Shared ${
-                                message.attachments.length > 0
-                                    ? message.attachments.length === 1
-                                        ? 'an attachment'
-                                        : `${message.attachments.length} attachments`
-                                    : 'a message'
+                            `Shared ${message.attachments.length > 0
+                                ? message.attachments.length === 1
+                                    ? 'an attachment'
+                                    : `${message.attachments.length} attachments`
+                                : 'a message'
                             }`,
                     })
                 });
@@ -64,7 +63,7 @@ export default function AuthenticatedLayout({ header, children }) {
                     channel = `message.user.${[
                         parseInt(conversation.id),
                         parseInt(user.id)
-                    ].sort((a, b) => a - b).join('.')}`;
+                    ].sort((a, b) => a - b).join('-')}`;
                 }
                 Echo.leave(channel);
             });

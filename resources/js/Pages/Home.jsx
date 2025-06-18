@@ -1,7 +1,7 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatLayout from '@/Layouts/ChatLayout';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ConversationHeader from '../Components/App/ConversationHeader';
 import MessageItem from '../Components/App/MessageItem';
 import MessageInput from '@/Components/App/MessageInput';
@@ -11,27 +11,43 @@ import { useEventBus } from '@/helpers/EventBus';
 export default function Home({ selectedConversation = null, messages = null }) {
 
     const [localMessages, setLocalMessages] = useState([]);
+    const loadMoreIntersect = useRef(null);
     const messagesCtrlRef = useRef(null);
 
     const { on } = useEventBus();
 
     const messageCreated = (message) => {
-         
+
         if (
-            selectedConversation &&  
-            selectedConversation.is_group && 
-            message.group_id == selectedConversation.id 
-         ) {
+            selectedConversation &&
+            selectedConversation.is_group &&
+            message.group_id == selectedConversation.id
+        ) {
             setLocalMessages((prevMessages) => [...prevMessages, message]);
         }
         if (
-            selectedConversation && 
+            selectedConversation &&
             selectedConversation.is_user &&
             message.sender_id == selectedConversation.id || message.receiver_id == selectedConversation.id
         ) {
             setLocalMessages((prevMessages) => [...prevMessages, message]);
         }
     };
+
+    const loadMoreMessages = useCallback(() => {
+        const firstMessage = localMessages[0];
+        if (!firstMessage || !selectedConversation) return;
+        axios.get(`message.loadOlder`, firstMessage.id)
+            .then((data) => {
+                if (data.data.length === 0) {
+                    setNoMoreMessages(true);
+                    return
+                };
+                
+            }).catch((error) => {
+                console.error('Error loading more messages:', error);
+            });
+    }, [localMessages]);
 
     useEffect(() => {
         setLocalMessages(messages ? messages.data.reverse() : []);
@@ -84,6 +100,7 @@ export default function Home({ selectedConversation = null, messages = null }) {
                             {
                                 localMessages.length > 0 && (
                                     <div className='flex flex-1 flex-col '>
+                                        <div ref={loadMoreIntersect}></div>
                                         {
                                             localMessages.map((message) => {
                                                 return (

@@ -1,11 +1,12 @@
 import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout';
 import ChatLayout from '@/Layouts/ChatLayout';
 import { ChatBubbleLeftRightIcon } from '@heroicons/react/24/outline';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { use, useCallback, useEffect, useRef, useState } from 'react';
 import ConversationHeader from '../Components/App/ConversationHeader';
 import MessageItem from '../Components/App/MessageItem';
 import MessageInput from '@/Components/App/MessageInput';
 import { useEventBus } from '@/helpers/EventBus';
+import axios from 'axios';
 
 
 export default function Home({ selectedConversation = null, messages = null }) {
@@ -13,6 +14,9 @@ export default function Home({ selectedConversation = null, messages = null }) {
     const [localMessages, setLocalMessages] = useState([]);
     const loadMoreIntersect = useRef(null);
     const messagesCtrlRef = useRef(null);
+
+    const [scrollFromBottom, setScrollFromBottom] = useState(0);
+    const [noMoreMessages, setNoMoreMessages] = useState(false);
 
     const { on } = useEventBus();
 
@@ -35,30 +39,81 @@ export default function Home({ selectedConversation = null, messages = null }) {
     };
 
     const loadMoreMessages = useCallback(() => {
+
+        // debugger;
+        if (noMoreMessages) return;
         const firstMessage = localMessages[0];
-        if (!firstMessage || !selectedConversation) return;
-        axios.get(`message.loadOlder`, firstMessage.id)
-            .then((data) => {
+
+        axios.get(route('message.loadOlder', firstMessage.id))
+            .then(({ data }) => {
                 if (data.data.length === 0) {
                     setNoMoreMessages(true);
-                    return
-                };
-                
-            }).catch((error) => {
-                console.error('Error loading more messages:', error);
+                    return;
+                }
+
+                const scrollHeight = messagesCtrlRef.current.scrollHeight;
+                const scrollTop = messagesCtrlRef.current.scrollTop;
+                const clientHeight = messagesCtrlRef.current.clientHeight;
+                const tmpScrollFromBottom = scrollHeight - scrollTop - clientHeight;
+
+                // console.log('tempScrollFromBottom', tmpScrollFromBottom);
+                setScrollFromBottom(tmpScrollFromBottom);
+
+                setLocalMessages((prevMessages) => {
+                    const newMessages = [...data.data.reverse(), ...prevMessages];
+                    return newMessages;
+                });
+
             });
-    }, [localMessages]);
+
+    }, [localMessages, noMoreMessages]);
 
     useEffect(() => {
         setLocalMessages(messages ? messages.data.reverse() : []);
     }, [messages]);
 
     useEffect(() => {
+        if (messagesCtrlRef.current && scrollFromBottom !== null) {
+            messagesCtrlRef.current.scrollTop =
+                messagesCtrlRef.current.scrollHeight -
+                messagesCtrlRef.current.offsetHeight -
+                scrollFromBottom;
+        }
+
+        if (noMoreMessages) {
+            return;
+        }
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    entry.isIntersecting && loadMoreMessages();
+                })
+            },
+            {
+                rootMargin: '0px 0px 250px 0px',
+            }
+        );
+
+        if (loadMoreIntersect.current) {
+            setTimeout(() => {
+                observer.observe(loadMoreIntersect.current);
+            }, 100);
+        }
+
+
+        return () => {
+            observer.disconnect();
+        }
+    }, [localMessages])
+
+    useEffect(() => {
         setTimeout(() => {
             if (!messagesCtrlRef.current) return;
             messagesCtrlRef.current.scrollTop = messagesCtrlRef.current.scrollHeight;
-        }
-            , 10);
+        }, 10);
+
+        setScrollFromBottom(0);
 
         const offCreated = on('message.created', messageCreated);
         return () => {

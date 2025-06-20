@@ -76,12 +76,12 @@ const MessageInput = ({ conversation = null }) => {
                         onSend={onSendHandle}
                         placeholder="Type your message here..."
                     />
-                    <button onClick={onSendHandle} className="btn btn-into rounded-1-none">
-                        {
+                    <button disabled={messageSending} onClick={onSendHandle} className="btn btn-into rounded-1-none">
+                        {/* {
                             messageSending && (
                                 <span className="loading loading-spinner loading-xs"></span>
                             )
-                        }
+                        } */}
                         <PaperAirplaneIcon className="w-6" />
                         <span className="sr-only hidden sm:inline">Send</span>
                     </button>
